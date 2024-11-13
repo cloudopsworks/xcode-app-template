@@ -1,0 +1,30 @@
+##
+# (c) 2024 - Cloud Ops Works LLC - https://cloudops.works/
+#            On GitHub: https://github.com/cloudopsworks
+#            Distributed Under Apache v2.0 License
+#
+name: Slash command on Retry Automerge
+
+on:
+  repository_dispatch:
+    types:
+      - retry-command
+
+permissions:
+  issues: write
+  checks: read
+  deployments: write
+  contents: read
+  packages: read
+  statuses: write
+
+jobs:
+  retry-automerge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pascalgn/automerge-action@v0.15.6
+        env:
+          GITHUB_TOKEN: "${{ secrets.BOT_TOKEN }}"
+          MERGE_LABELS: "approved,!do-not-merge"
+          UPDATE_LABELS: "approved"
+          #LOG: "TRACE"

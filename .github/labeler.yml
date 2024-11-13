@@ -1,0 +1,22 @@
+##
+# (c) 2024 - Cloud Ops Works LLC - https://cloudops.works/
+#            On GitHub: https://github.com/cloudopsworks
+#            Distributed Under Apache v2.0 License
+#
+release:
+- base-branch: [ 'main', 'master' ]
+
+feature:
+- head-branch: [ '^feature' ]
+
+hotfix:
+- head-branch: [ '^hotfix', '^fix' ]
+
+size-XS:
+- any: [ '*Dockerfile' ]
+
+size-S:
+- any: [ 'package*.json', 'node_modules/**/*', 'charts/**/*' ]
+
+size-XL:
+- any: [ '**/*.swift', '!*Dockerfile', '!package*.json', '!charts/**/*', '!node_modules/**/*' ]

@@ -1,0 +1,53 @@
+organization_name: "ORG_NAME"
+organization_unit: "ORG_UNIT"
+environment_name: "ENV_NAME"
+repository_owner: "REPO_OWNER" # Required
+#
+## Default node version is 20, uncomment to build with different, default dist is adopt, uncomment to use different dist
+## Image variant is alpine by default, uncomment to use different image variant for the specified dist
+#node:
+#  version: 12
+#  dist: adopt
+#  image_variant: alpine
+#
+# Set Snyk processing to true if want to enable, the tool is disabled by default
+#snyk:
+#  enabled: false
+#
+# Set Semgrep processing to true if want to enable, the tool is disabled by default
+#semgrep:
+#  enabled: false
+#
+# Set Sonarqube processing to true if want to enable, the tool is disabled by default
+#sonarqube:
+#  enabled: true
+#  fail_on_quality_gate: true
+#  sources_path: "/"
+#  libraries_path: "**/node_modules/**/*"
+#  tests_path: "/"
+#  tests_inclusions: "**/test/**/*"
+#  tests_libraries: "**/node_modules/**/*"
+#  exclusions: "**/node_modules/**/*,"**/test/**/*"
+#  extra_exclusions:
+#  branch_disabled: true # uncomment only if you are using Community Sonarqube
+#
+# Set DependencyTrack processing to false if want to disable, the tool is enabled by default
+# type: is one of => Library , Application , Container , Framework , Device , Firmware , File , Operating System
+#       Default type is Application
+#dependencyTrack:
+#  enabled: true
+#  type: Application
+#
+# Preview configuration, if enabled will create a preview environment for each PR
+#preview:
+#  enabled: false
+#  kubernetes: true
+#  domain: example.com
+#
+## CD pipeline configuration uncomment and configure accordingly to enable
+# Target Cloud
+cloud: aws | azure | gcp
+# Cloud deployment type depends on the target cloud
+cloud_type: beanstalk | eks | lambda | aks | webapp | function | gke | function | kubernetes
+# Indicate the Runner that will be used for the deployment - usually will be a hosted runner
+# runner_set: "arc-runner-set"
