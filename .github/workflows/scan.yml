@@ -93,7 +93,7 @@ jobs:
 
       - name: Semgrep Scan
         if: ${{ needs.preload.outputs.semgrep_enabled == 'true' }}
-        uses: ./bp/ci/nodejs/scan/semgrep
+        uses: ./bp/ci/xcode/scan/semgrep
         continue-on-error: true
         with:
           source_path: ${{ steps.co.outputs.source_path }}
@@ -116,14 +116,14 @@ jobs:
 
       - name: Build Node.js
         id: build
-        uses: ./bp/ci/nodejs/build
+        uses: ./bp/ci/xcode/build
         with:
           bot_user: ${{ inputs.bot_user }}
           token: ${{ inputs.token }}
 
       - name: Test / Verify / Install Node.js
         id: test
-        uses: ./bp/ci/nodejs/test/verify
+        uses: ./bp/ci/xcode/test/verify
         with:
           bot_user: ${{ inputs.bot_user }}
           token: ${{ inputs.token }}
@@ -131,7 +131,7 @@ jobs:
 
       - name: Snyk Scan
         if: ${{ needs.preload.outputs.snyk_enabled == 'true' }}
-        uses: ./bp/ci/nodejs/scan/snyk
+        uses: ./bp/ci/xcode/scan/snyk
         continue-on-error: true
         with:
           source_path: ${{ steps.co.outputs.source_path }}
@@ -141,7 +141,7 @@ jobs:
 
       - name: SonarQube Scan
         if: ${{ needs.preload.outputs.sonarqube_enabled == 'true' }}
-        uses: ./bp/ci/nodejs/scan/sonarqube
+        uses: ./bp/ci/xcode/scan/sonarqube
         continue-on-error: true
         with:
           source_path: ${{ steps.co.outputs.source_path }}
@@ -161,21 +161,9 @@ jobs:
           sonarqube_url: ${{ inputs.sonarqube_url }}
           sonarqube_token: ${{ secrets.sonarqube_token }}
 
-      - name: SonarQube Scan APIS
-        if: ${{ needs.preload.outputs.sonarqube_enabled == 'true' && needs.preload.outputs.apis_enabled == 'true' }}
-        uses: ./bp/ci/api/scan/sonarqube
-        continue-on-error: true
-        with:
-          source_path: ${{ steps.co.outputs.source_path }}
-          token: ${{ inputs.token }}
-          sonarqube_url: ${{ inputs.sonarqube_url }}
-          sonarqube_token: ${{ secrets.sonarqube_token }}
-          sonarqube_project_key: ${{ needs.preload.outputs.project_key }}
-          semver: ${{ steps.build.outputs.semver }}
-
       - name: Dependency track Scan
         if: ${{ needs.preload.outputs.dtrack_enabled == 'true' }}
-        uses: ./bp/ci/nodejs/scan/dtrack
+        uses: ./bp/ci/xcode/scan/dtrack
         continue-on-error: true
         with:
           source_path: ${{ steps.co.outputs.source_path }}
@@ -187,7 +175,7 @@ jobs:
           semver: ${{ steps.build.outputs.semver }}
 
       - name: Upload Artifacts
-        uses: ./bp/ci/nodejs/test/artifacts
+        uses: ./bp/ci/xcode/test/artifacts
         with:
           bot_user: ${{ inputs.bot_user }}
           token: ${{ inputs.token }}
