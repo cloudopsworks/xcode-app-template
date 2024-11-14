@@ -49,8 +49,8 @@ jobs:
         with:
           token: ${{ secrets.BOT_TOKEN }}
 
-  code-build:
-    name: 'Code Build - Branch: ${{ github.ref_name }}'
+  preload:
+    name: 'Preload - Branch: ${{ github.ref_name }}'
     runs-on: ubuntu-latest
     if: ${{ ! startsWith(github.head_ref, 'release/') && ! startsWith(github.head_ref,'support/') && ! startsWith(github.head_ref,'master')}}
     outputs:
@@ -65,6 +65,10 @@ jobs:
       runner_set: ${{ steps.config.outputs.runner_set != '' && steps.config.outputs.runner_set || vars.PREVIEW_RUNNER_SET }}
       project_key: ${{ steps.config.outputs.project_key }}
       project_owner: ${{ steps.config.outputs.project_owner }}
+      environment: ${{ steps.config.outputs.environment }}
+      xcode_schemes: ${{ steps.xconfig.outputs.xcode_schemes }}
+      xcode_sdks: ${{ steps.xconfig.outputs.xcode_sdks }}
+      xcode_destinations: ${{ steps.xconfig.outputs.xcode_destinations }}
     steps:
       - name: Checkout w/Blueprint
         uses: cloudopsworks/blueprints/cd/checkout@v5
@@ -76,12 +80,54 @@ jobs:
         id: config
         uses: ./bp/ci/config
 
+      - name: XCode Configuration
+        id: xconfig
+        uses: ./bp/ci/xcode/config
+        with:
+          environment: ${{ steps.config.outputs.environment }}
+
+  code-build:
+    name: 'Xcode Build - Branch: ${{ github.ref_name }}'
+    needs:
+      - preload
+    strategy:
+      matrix:
+        xcode_scheme: ${{ fromJSON(needs.preload.outputs.xcode_schemes) }}
+        xcode_sdk: ${{ fromJSON(needs.preload.outputs.xcode_sdks) }}
+        xcode_destination: ${{ fromJSON(needs.preload.outputs.xcode_destinations) }}
+    runs-on: ${{ needs.preload.outputs.runner_set }}
+    steps:
+      - name: Checkout w/Blueprint
+        uses: cloudopsworks/blueprints/cd/checkout@v5
+        with:
+          source_ref: ${{ github.head_ref }}
+          blueprint_ref: 'v5'
+
+      - name: XCode Configuration
+        id: xconfig
+        uses: ./bp/ci/xcode/config
+        with:
+          environment: ${{ needs.preload.outputs.environment }}
+
       - name: Build XCode Project
         id: build
         uses: ./bp/ci/xcode/build
         with:
           bot_user: ${{ vars.BOT_USER }}
           token: ${{ secrets.BOT_TOKEN }}
+          project_key: ${{ needs.preload.ouputs.project_key }}
+          xcode_version: ${{ steps.xconfig.outputs.xcode_version }}
+          xcode_scheme: ${{ matrix.xcode_scheme }}
+          xcode_sdk: ${{ matrix.xcode_sdk }}
+          xcode_destination: ${{ matrix.xcode_destination }}
+          xcode_extra_args: ${{ steps.xconfig.outputs.xcode_extra_args }}
+          xcode_configuration: ${{ steps.xconfig.outputs.xcode_configuration }}
+          xcode_dev_team: ${{ steps.xconfig.outputs.xcode_dev_team }}
+          xcode_product_bundle: ${{ steps.xconfig.outputs.xcode_product_bundle }}
+          build_certificate_b64: ${{ secrets.XCODE_BUILD_CERTIFICATE_BASE64 }}
+          build_certificate_pass: ${{ secrets.XCODE_BUILD_CERTIFICATE_PASS }}
+          build_provision_profile_b64: ${{ secrets.XCODE_PROVISION_PROFILE_BASE64 }}
+          keychain_password: ${{ secrets.XCODE_KEYCHAIN_PASSWORD }}
 
 #      - name: Deploy Component
 #        if: steps.config.outputs.is_library == 'true'

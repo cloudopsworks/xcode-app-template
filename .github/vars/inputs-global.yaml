@@ -6,6 +6,8 @@ repository_owner: "REPO_OWNER" # Required
 ## Default node version is 20, uncomment to build with different, default dist is adopt, uncomment to use different dist
 ## Image variant is alpine by default, uncomment to use different image variant for the specified dist
 xcode:
+  version: 15.2
+  extra_args: -allowProvisioningUpdates
   dev_team: VM23Y9J3R8
   product_bundle: I-am-Groot2-test-cloudopsworks
   schemes:
@@ -55,4 +57,4 @@ cloud: aws | azure | gcp
 # Cloud deployment type depends on the target cloud
 cloud_type: beanstalk | eks | lambda | aks | webapp | function | gke | function | kubernetes
 # Indicate the Runner that will be used for the deployment - usually will be a hosted runner
-# runner_set: "arc-runner-set"
+runner_set: "macos-13"
