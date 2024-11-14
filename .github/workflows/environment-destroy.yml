@@ -18,16 +18,15 @@ on:
         required: true
         options:
           - dev
-          - uat
           - prod
+          - uat
+          - hotfix
       qualifier:
         type: string
         description: Qualifier for the lock (green/bluee)
         required: false
         default: ''
-
 concurrency: destroy-${{ github.repository }}-${{ inputs.destroyedDeploymentName }}
-
 # Permission Settings for the entire RUN
 permissions:
   actions: write
@@ -35,7 +34,6 @@ permissions:
   issues: write
   packages: write
   statuses: write
-
 jobs:
   preload:
     name: Preload Configuration
@@ -47,11 +45,9 @@ jobs:
         uses: cloudopsworks/blueprints/cd/checkout@v5
         with:
           blueprint_ref: 'v5'
-
       - name: Pipeline Configuration
         id: config
         uses: ./bp/ci/config
-
   destroy-environment:
     needs:
       - preload
@@ -63,11 +59,9 @@ jobs:
         uses: cloudopsworks/blueprints/cd/checkout@v5
         with:
           blueprint_ref: 'v5'
-
       - name: Pipeline Configuration
         id: config
         uses: ./bp/ci/config
-
       - name: Destroy AWS
         if: ${{ steps.config.outputs.cloud == 'AWS' }}
         uses: ./bp/cd/deploy/app/aws
@@ -86,7 +80,6 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.destroyedDeploymentName }}
           environment: ${{ steps.config.outputs.environment }}
-
       - name: Destroy Azure
         if: ${{ steps.config.outputs.cloud == 'AZURE' }}
         uses: ./bp/cd/deploy/app/azure
@@ -104,7 +97,6 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.destroyedDeploymentName }}
           environment: ${{ steps.config.outputs.environment }}
-
 #      - name: Destroy GCP
 #        if: ${{ steps.config.outputs.cloud == 'GCP' }}
 #        uses: ./bp/cd/deploy/app/azure

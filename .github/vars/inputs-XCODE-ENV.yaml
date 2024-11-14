@@ -1,25 +1,9 @@
 # This file contains the environment variables for the Kubernetes deployment
 environment: "dev|uat|prod|demo"
-runner_set: "RUNNER-ENV"
+#runner_set: "macos-14"
 #disable_deploy: true
-container_registry: REGISTRY
-cluster_name: CLUSTER_NAME
-namespace: NAMESPACE
-config_map:
-  enabled:  false
-  files_path: values/configmaps
-  mount_point: /app/configmap
-#helm_repo_url: oci://HELM_REPO_URL|https://HELM_REPO_URL
-#helm_chart_name: CHART_NAME
-#helm_chart_path: CHART_PATH
-helm_values_overrides:
-  'image.repository': REGISTRY/REPOSITORY
-#
-# Docker Arguments that will be passed to Docker Build Process
-#docker_args: |
-#  ARG1=value1
-#  ARG2=value2
-#  ARG3=value3
+xcode:
+  configuration: Debug | Release | <...>
 
 # The following are for cloud specific configurations
 # These will be used to filter the secrets from the secret manager

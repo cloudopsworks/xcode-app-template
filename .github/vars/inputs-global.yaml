@@ -5,18 +5,25 @@ repository_owner: "REPO_OWNER" # Required
 #
 ## Default node version is 20, uncomment to build with different, default dist is adopt, uncomment to use different dist
 ## Image variant is alpine by default, uncomment to use different image variant for the specified dist
-#node:
-#  version: 12
-#  dist: adopt
-#  image_variant: alpine
+xcode:
+  version: 15.2
+  extra_args: -allowProvisioningUpdates
+  dev_team: VM23Y9J3R8
+  product_bundle: I-am-Groot2-test-cloudopsworks
+  schemes:
+    - "I am Groot"
+  sdks:
+    - iphoneos
+  destinations:
+    - platform=iOS Simulator,OS=18.1,name=iPhone 16 Pro
 #
 # Set Snyk processing to true if want to enable, the tool is disabled by default
 #snyk:
-#  enabled: false
+#  enabled: true
 #
 # Set Semgrep processing to true if want to enable, the tool is disabled by default
 #semgrep:
-#  enabled: false
+#  enabled: true
 #
 # Set Sonarqube processing to true if want to enable, the tool is disabled by default
 #sonarqube:
@@ -40,7 +47,7 @@ repository_owner: "REPO_OWNER" # Required
 #
 # Preview configuration, if enabled will create a preview environment for each PR
 #preview:
-#  enabled: false
+#  enabled: true
 #  kubernetes: true
 #  domain: example.com
 #
@@ -50,4 +57,4 @@ cloud: aws | azure | gcp
 # Cloud deployment type depends on the target cloud
 cloud_type: beanstalk | eks | lambda | aks | webapp | function | gke | function | kubernetes
 # Indicate the Runner that will be used for the deployment - usually will be a hosted runner
-# runner_set: "arc-runner-set"
+runner_set: "macos-13"
