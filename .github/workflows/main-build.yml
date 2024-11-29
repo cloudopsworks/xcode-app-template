@@ -102,7 +102,7 @@ jobs:
         with:
           bot_user: ${{ vars.BOT_USER }}
           token: ${{ secrets.BOT_TOKEN }}
-          project_key: ${{ needs.preload.ouputs.project_key }}
+          project_key: ${{ needs.preload.outputs.project_key }}
           xcode_version: ${{ steps.xconfig.outputs.xcode_version }}
           xcode_scheme: ${{ matrix.xcode_scheme }}
           xcode_sdk: ${{ matrix.xcode_sdk }}
