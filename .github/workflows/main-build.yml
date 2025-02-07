@@ -117,66 +117,20 @@ jobs:
           keychain_password: ${{ secrets.XCODE_KEYCHAIN_PASSWORD }}
           build_export_options_plist: ${{ secrets.XCODE_EXPORT_OPTIONS_PLIST }}
 
-#      - name: Deploy Component
-#        if: steps.config.outputs.is_library == 'true'
-#        uses: ./bp/ci/xcode/deploy
-#        with:
-#          bot_user: ${{ vars.BOT_USER }}
-#          token: ${{ secrets.BOT_TOKEN }}
-
       - name: Save Build Artifacts
         uses: ./bp/ci/xcode/artifacts
-
-#      - name: Save Api Artifacts
-#        if: steps.config.outputs.apis_enabled == 'true'
-#        uses: ./bp/ci/api/artifacts
-
-#      - name: Build & Save Container
-#        if: steps.config.outputs.container_enabled == 'true'
-#        uses: ./bp/ci/nodejs/container
-#        with:
-#          semver: ${{ steps.build.outputs.semver }}
-#          node_version: ${{ steps.build.outputs.node_version }}
-#          node_dist: ${{ steps.build.outputs.node_dist }}
-#          node_image_variant: ${{ steps.build.outputs.node_image_variant }}
-#          environment: ${{ steps.config.outputs.environment }}
-#          is_release: ${{ steps.config.outputs.is_release }}
-#          default_registry_address: ${{ vars.DOCKER_REGISTRY_ADDRESS }}
-#          project_key: ${{ steps.config.outputs.project_key }}
-#          project_owner: ${{ steps.config.outputs.project_owner }}
-
-#  deploy-container:
-#    needs:
-#      - code-build
-#    if: ${{ needs.code-build.outputs.container_enabled == 'true' && needs.code-build.outputs.deployment_enabled == 'true' && needs.code-build.outputs.is_library != 'true' }}
-#    uses: ./.github/workflows/deploy-container.yml
-#    with:
-#      deployment_name: ${{ needs.code-build.outputs.deployment_name }}
-#      cloud: ${{ needs.code-build.outputs.cloud }}
-#      cloud_type: ${{ needs.code-build.outputs.cloud_type }}
-#      runner_set: ${{ needs.code-build.outputs.runner_set }}
-#      default_aws_region: ${{ vars.BUILD_AWS_REGION }}
-#      default_aws_sts_role_arn: ${{ vars.BUILD_AWS_STS_ROLE_ARN }}
-#      default_azure_rg: ${{ vars.BUILD_AZURE_RG }}
-#      default_registry_address: ${{ vars.DOCKER_REGISTRY_ADDRESS }}
-#      project_key: ${{ needs.code-build.outputs.project_key }}
-#      project_owner: ${{ needs.code-build.outputs.project_owner }}
-#    secrets:
-#      token: ${{ secrets.BOT_TOKEN }}
-#      aws_access_key_id: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
-#      aws_secret_access_key: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
-#      azure_service_id: ${{ secrets.BUILD_AZURE_SERVICE_ID }}
-#      azure_service_secret: ${{ secrets.BUILD_AZURE_SERVICE_SECRET }}
 
   release:
     name: 'Generate Release'
     needs:
+      - preload
       - code-build
-#      - deploy-container
     runs-on: ubuntu-latest
     if: |
+      always() &&
       (needs.code-build.result == 'success') &&
-      (needs.code-build.outputs.is_release == 'true')
+      (needs.preload.outputs.is_release == 'true') &&
+      (needs.preload.outputs.has_qualifier != 'true')
     steps:
       - name: Checkout w/Blueprint
         uses: cloudopsworks/blueprints/cd/checkout@v5
@@ -188,9 +142,9 @@ jobs:
         uses: ./bp/cd/release
         with:
           source_path: ${{ steps.co.outputs.source_path }}
-          ref_name: ${{ needs.code-build.outputs.semver }}
-          release_tag: ${{ needs.code-build.outputs.semver }}
-          is_pre_release: ${{ needs.code-build.outputs.is_pre_release == 'true' }}
+          ref_name: ${{ needs.preload.outputs.semver }}
+          release_tag: ${{ needs.preload.outputs.semver }}
+          is_pre_release: ${{ needs.preload.outputs.is_pre_release == 'true' }}
           files_globs: |
             *.zip
             *.jar
@@ -199,9 +153,11 @@ jobs:
   scan:
     name: 'Code Scan SAST/SCA/DAST'
     needs:
+      - preload
       - code-build
-#      - deploy-container
-    if: needs.code-build.result == 'success'
+    if: |
+      always() && 
+      (needs.code-build.result == 'success')
     uses: ./.github/workflows/scan.yml
     with:
       deployment_name: ${{ needs.code-build.outputs.deployment_name }}
@@ -209,6 +165,7 @@ jobs:
       sonarqube_url: ${{ vars.SONARQUBE_URL }}
       dtrack_url: ${{ vars.DEPENDENCYTRACK_URL }}
       default_runner_set: ${{ vars.DEPLOYMENT_RUNNER_SET }}
+      environment: ${{ needs.preload.outputs.environment }}
     secrets:
       token: ${{ secrets.BOT_TOKEN }}
       sonarqube_token: ${{ secrets.SONARQUBE_TOKEN }}
@@ -218,23 +175,23 @@ jobs:
 
   deploy:
     needs:
+      - preload
       - code-build
-#      - deploy-container
     if: |
       needs.code-build.result == 'success' &&
-      needs.code-build.outputs.deployment_enabled == 'true'
+      needs.preload.outputs.deployment_enabled == 'true'
     uses: ./.github/workflows/deploy.yml
     with:
-      deployment_name: ${{ needs.code-build.outputs.deployment_name }}
-      cloud: ${{ needs.code-build.outputs.cloud }}
-      cloud_type: ${{ needs.code-build.outputs.cloud_type }}
-      runner_set: ${{ needs.code-build.outputs.runner_set }}
+      deployment_name: ${{ needs.preload.outputs.deployment_name }}
+      cloud: ${{ needs.preload.outputs.cloud }}
+      cloud_type: ${{ needs.preload.outputs.cloud_type }}
+      runner_set: ${{ needs.preload.outputs.runner_set }}
       default_aws_region: ${{ vars.DEPLOYMENT_AWS_REGION }}
       default_aws_sts_role_arn: ${{ vars.DEPLOYMENT_AWS_STS_ROLE_ARN }}
       default_azure_rg: ${{ vars.DEPLOYMENT_AZURE_RG }}
       terraform_state_conf: ${{ vars.DEPLOYMENT_STATE_CONF }}
-      semver: ${{ needs.code-build.outputs.semver }}
-      apis_enabled: ${{ needs.code-build.outputs.apis_enabled == 'true' }}
+      semver: ${{ needs.preload.outputs.semver }}
+      apis_enabled: ${{ needs.preload.outputs.apis_enabled == 'true' }}
     secrets:
       token: ${{ secrets.BOT_TOKEN }}
       aws_access_key_id: ${{ secrets.DEPLOYMENT_AWS_ACCESS_KEY_ID }}

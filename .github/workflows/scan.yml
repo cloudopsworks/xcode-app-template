@@ -8,20 +8,34 @@ on:
   workflow_call:
     inputs:
       deployment_name:
+        description: 'Deployment Name'
         required: true
         type: string
       bot_user:
+        description: 'Bot User'
         required: true
         type: string
       sonarqube_url:
+        description: 'SonarQube URL'
         required: true
         type: string
       dtrack_url:
+        description: 'Dependency Track URL'
         required: true
         type: string
       default_runner_set:
+        description: 'Default Runner Set'
         required: true
         type: string
+      environment:
+        description: 'Environment'
+        required: true
+        type: string
+      is_preview:
+        description: 'Is Preview Environment'
+        required: false
+        type: boolean
+        default: false
 
     secrets:
       token:
@@ -91,15 +105,22 @@ jobs:
         with:
           blueprint_ref: 'v5'
 
+      - name: Download Target Artifacts
+        uses: ./bp/ci/common/download/artifacts
+        with:
+          bot_user: ${{ inputs.bot_user }}
+          token: ${{ secrets.token }}
+          destination_path: 'target'
+
       - name: Semgrep Scan
         if: ${{ needs.preload.outputs.semgrep_enabled == 'true' }}
-        uses: ./bp/ci/xcode/scan/semgrep
+        uses: ./bp/ci/java/scan/semgrep
         continue-on-error: true
         with:
           source_path: ${{ steps.co.outputs.source_path }}
           semgrep_token: ${{ secrets.semgrep_token }}
           bot_user: ${{ inputs.bot_user }}
-          token: ${{ inputs.token }}
+          token: ${{ secrets.token }}
 
 
   scan-others:
@@ -114,20 +135,12 @@ jobs:
         with:
           blueprint_ref: 'v5'
 
-      - name: Build Node.js
-        id: build
-        uses: ./bp/ci/xcode/build
+      - name: Download Target Artifacts
+        uses: ./bp/ci/common/download/artifacts
         with:
           bot_user: ${{ inputs.bot_user }}
-          token: ${{ inputs.token }}
-
-      - name: Test / Verify / Install Node.js
-        id: test
-        uses: ./bp/ci/xcode/test/verify
-        with:
-          bot_user: ${{ inputs.bot_user }}
-          token: ${{ inputs.token }}
-          dtrack_project_type: ${{ needs.preload.outputs.dtrack_project_type }}
+          token: ${{ secrets.token }}
+          destination_path: 'target'
 
       - name: Snyk Scan
         if: ${{ needs.preload.outputs.snyk_enabled == 'true' }}
@@ -137,7 +150,7 @@ jobs:
           source_path: ${{ steps.co.outputs.source_path }}
           snyk_token: ${{ secrets.snyk_token }}
           bot_user: ${{ inputs.bot_user }}
-          token: ${{ inputs.token }}
+          token: ${{ secrets.token }}
 
       - name: SonarQube Scan
         if: ${{ needs.preload.outputs.sonarqube_enabled == 'true' }}
@@ -145,7 +158,7 @@ jobs:
         continue-on-error: true
         with:
           source_path: ${{ steps.co.outputs.source_path }}
-          token: ${{ inputs.token }}
+          token: ${{ secrets.token }}
           sonarqube_url: ${{ inputs.sonarqube_url }}
           sonarqube_token: ${{ secrets.sonarqube_token }}
           sonarqube_project_key: ${{ needs.preload.outputs.project_key }}
@@ -167,7 +180,7 @@ jobs:
         continue-on-error: true
         with:
           source_path: ${{ steps.co.outputs.source_path }}
-          token: ${{ inputs.token }}
+          token: ${{ secrets.token }}
           dtrack_url: ${{ inputs.dtrack_url }}
           dtrack_token: ${{ secrets.dtrack_token }}
           dtrack_project_key: ${{ needs.preload.outputs.project_key }}
@@ -178,5 +191,5 @@ jobs:
         uses: ./bp/ci/xcode/test/artifacts
         with:
           bot_user: ${{ inputs.bot_user }}
-          token: ${{ inputs.token }}
+          token: ${{ secrets.token }}
 
