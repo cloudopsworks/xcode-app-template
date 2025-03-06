@@ -114,7 +114,7 @@ jobs:
 
       - name: Semgrep Scan
         if: ${{ needs.preload.outputs.semgrep_enabled == 'true' }}
-        uses: ./bp/ci/java/scan/semgrep
+        uses: ./bp/ci/xcode/scan/semgrep
         continue-on-error: true
         with:
           source_path: ${{ steps.co.outputs.source_path }}

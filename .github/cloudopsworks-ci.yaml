@@ -4,8 +4,8 @@
 #            Distributed Under Apache v2.0 License
 #
 zipGlobs:
-  - "build/*.ipa"
-  - "arch/*.app"
+  - "build/**/*.ipa"
+  - "build/**/*.app"
 excludeGlobs:
   - Dockerfile
   - .helmignore

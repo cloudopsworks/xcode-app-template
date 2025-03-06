@@ -8,12 +8,15 @@ repository_owner: "REPO_OWNER" # Required
 xcode:
   version: 15.2
   extra_args: -allowProvisioningUpdates
+  dev_team: <ID>
+  product_bundle: <product bundle>
   schemes:
     - "I am Groot"
   sdks:
     - iphoneos
   destinations:
-    - platform=iOS Simulator,OS=17.2,name=iPhone 14
+    - "generic/platform=iOS"
+    - "platform=iOS Simulator,OS=17.2,name=iPhone 14"
 #
 # Set Snyk processing to true if want to enable, the tool is disabled by default
 #snyk:
