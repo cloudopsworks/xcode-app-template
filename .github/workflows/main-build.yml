@@ -1,7 +1,10 @@
 ##
-# (c) 2024 - Cloud Ops Works LLC - https://cloudops.works/
-#            On GitHub: https://github.com/cloudopsworks
-#            Distributed Under Apache v2.0 License
+# (c) 2021-2025
+#     Cloud Ops Works LLC - https://cloudops.works/
+#     Find us on:
+#       GitHub: https://github.com/cloudopsworks
+#       WebSite: https://cloudops.works
+#     Distributed Under Apache v2.0 License
 #
 name: Release Build
 on:
@@ -60,9 +63,9 @@ jobs:
       xcode_destinations: ${{ steps.xconfig.outputs.xcode_destinations }}
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5
+        uses: cloudopsworks/blueprints/cd/checkout@v5.9
         with:
-          blueprint_ref: 'v5.8'
+          blueprint_ref: 'v5.9'
 
       - name: Pipeline Configuration
         id: config
@@ -86,9 +89,9 @@ jobs:
     runs-on: ${{ needs.preload.outputs.runner_set }}
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5
+        uses: cloudopsworks/blueprints/cd/checkout@v5.9
         with:
-          blueprint_ref: 'v5.8'
+          blueprint_ref: 'v5.9'
 
       - name: XCode Configuration
         id: xconfig
@@ -127,16 +130,16 @@ jobs:
       - code-build
     runs-on: ubuntu-latest
     if: |
-      always() &&
+      (! cancelled()) &&
       (needs.code-build.result == 'success') &&
       (needs.preload.outputs.is_release == 'true') &&
       (needs.preload.outputs.has_qualifier != 'true')
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5
+        uses: cloudopsworks/blueprints/cd/checkout@v5.9
         id: co
         with:
-          blueprint_ref: 'v5.8'
+          blueprint_ref: 'v5.9'
 
       - name: Perform Release
         uses: ./bp/cd/release
@@ -156,11 +159,12 @@ jobs:
       - preload
       - code-build
     if: |
-      always() && 
+      (! cancelled()) && 
       (needs.code-build.result == 'success')
     uses: ./.github/workflows/scan.yml
     with:
       deployment_name: ${{ needs.code-build.outputs.deployment_name }}
+      semver: ${{ needs.preload.outputs.semver }}
       bot_user: ${{ vars.BOT_USER }}
       sonarqube_url: ${{ vars.SONARQUBE_URL }}
       dtrack_url: ${{ vars.DEPENDENCYTRACK_URL }}
@@ -178,8 +182,9 @@ jobs:
       - preload
       - code-build
     if: |
-      needs.code-build.result == 'success' &&
-      needs.preload.outputs.deployment_enabled == 'true'
+      (! cancelled()) &&
+      (needs.code-build.result == 'success') &&
+      (needs.preload.outputs.deployment_enabled == 'true')
     uses: ./.github/workflows/deploy.yml
     with:
       deployment_name: ${{ needs.preload.outputs.deployment_name }}
