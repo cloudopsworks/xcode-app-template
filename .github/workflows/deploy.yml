@@ -1,7 +1,10 @@
 ##
-# (c) 2024 - Cloud Ops Works LLC - https://cloudops.works/
-#            On GitHub: https://github.com/cloudopsworks
-#            Distributed Under Apache v2.0 License
+# (c) 2021-2025
+#     Cloud Ops Works LLC - https://cloudops.works/
+#     Find us on:
+#       GitHub: https://github.com/cloudopsworks
+#       WebSite: https://cloudops.works
+#     Distributed Under Apache v2.0 License
 #
 name: Continuous deployment to target environment
 on:
@@ -46,11 +49,29 @@ on:
         required: false
         type: string
         default: ''
+      default_gcp_region:
+        description: 'Default GCP Region'
+        required: false
+        type: string
+        default: ''
+      default_gcp_project:
+        description: 'Default GCP Project ID'
+        required: false
+        type: string
+        default: ''
       apis_enabled:
         description: 'API Gateway Enabled'
         required: false
         type: boolean
         default: false
+      observability_enabled:
+        description: 'Observability Enabled'
+        required: true
+        type: boolean
+      observability_agent:
+        description: 'Observability Agent'
+        required: true
+        type: string
     secrets:
       token:
         description: 'GitHub Token'
@@ -66,6 +87,9 @@ on:
         required: false
       azure_service_secret:
         description: 'Azure Service Principal Secret'
+        required: false
+      gcp_credentials:
+        description: 'GCP Credentials JSON'
         required: false
 
 jobs:
@@ -119,9 +143,9 @@ jobs:
     environment: ${{ inputs.deployment_name }}
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5
+        uses: cloudopsworks/blueprints/cd/checkout@v5.9
         with:
-          blueprint_ref: 'v5.8'
+          blueprint_ref: 'v5.9'
 
       # Get Pipeline Config
       - name: Get Pipeline Config
@@ -144,6 +168,8 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
+          observability_enabled: ${{ inputs.observability_enabled }}
+          observability_agent: ${{ inputs.observability_agent }}
 
       - name: Deploy Azure
         if: ${{ inputs.cloud == 'AZURE' }}
@@ -160,17 +186,23 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
+          observability_enabled: ${{ inputs.observability_enabled }}
+          observability_agent: ${{ inputs.observability_agent }}
 
-#      - name: Deploy GCP
-#        if: ${{ inputs.cloud == 'GCP' }}
-#        uses: ./bp/cd/deploy/app/azure
-#        with:
-#          cloud_type: ${{ inputs.cloud_type }}
-#          token: ${{ secrets.token }}
-#          gcp_service_id: ${{ secrets.gcp_service_id }}
-#          terraform_state_conf: ${{ inputs.terraform_state_conf }}
-#          release_name: ${{ steps.config.outputs.release_name }}
-#          release_version: ${{ inputs.semver }}
-#          project_key: ${{ steps.config.outputs.project_key }}
-#          deployment_name: ${{ inputs.deployment_name }}
-#          environment: ${{ steps.config.outputs.environment }}
+      - name: Deploy GCP
+        if: ${{ inputs.cloud == 'GCP' }}
+        uses: ./bp/cd/deploy/app/gcp
+        with:
+          cloud_type: ${{ inputs.cloud_type }}
+          token: ${{ secrets.token }}
+          gcp_credentials: ${{ secrets.gcp_credentials }}
+          gcp_project: ${{ steps.config.outputs.gcp_project != '' && steps.config.outputs.gcp_project || inputs.default_gcp_project }}
+          gcp_region: ${{ steps.config.outputs.gcp_region != '' && steps.config.outputs.gcp_region || inputs.default_gcp_region }}
+          terraform_state_conf: ${{ inputs.terraform_state_conf }}
+          release_name: ${{ steps.config.outputs.release_name }}
+          release_version: ${{ inputs.semver }}
+          project_key: ${{ steps.config.outputs.project_key }}
+          deployment_name: ${{ inputs.deployment_name }}
+          environment: ${{ steps.config.outputs.environment }}
+          observability_enabled: ${{ inputs.observability_enabled }}
+          observability_agent: ${{ inputs.observability_agent }}
