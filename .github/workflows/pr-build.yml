@@ -77,10 +77,10 @@ jobs:
       xcode_destinations: ${{ steps.xconfig.outputs.xcode_destinations }}
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5
+        uses: cloudopsworks/blueprints/cd/checkout@v5.9
         with:
           source_ref: ${{ github.head_ref }}
-          blueprint_ref: 'v5.8'
+          blueprint_ref: 'v5.9'
 
       - name: Pipeline Configuration
         id: config
@@ -104,10 +104,10 @@ jobs:
     runs-on: ${{ needs.preload.outputs.runner_set }}
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5
+        uses: cloudopsworks/blueprints/cd/checkout@v5.9
         with:
           source_ref: ${{ github.head_ref }}
-          blueprint_ref: 'v5.8'
+          blueprint_ref: 'v5.9'
 
       - name: XCode Configuration
         id: xconfig
