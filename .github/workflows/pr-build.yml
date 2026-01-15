@@ -170,7 +170,7 @@ jobs:
         if: ${{ steps.config.outputs.cloud == 'AWS' }}
         uses: ./bp/cd/deploy/preview/aws
         with:
-          cloud_type: ${{ steps.config.outputs.cloud }}
+          platform_type: 'ios'
           token: ${{ secrets.BOT_TOKEN }}
           aws_region: ${{ vars.PREVIEW_AWS_REGION }}
           aws_sts_role_arn: ${{ vars.PREVIEW_AWS_STS_ROLE_ARN }}
@@ -192,7 +192,7 @@ jobs:
         if: ${{ steps.config.outputs.cloud == 'AZURE' }}
         uses: ./bp/cd/deploy/preview/azure
         with:
-          cloud_type: ${{ steps.config.outputs.cloud }}
+          platform_type: 'ios'
           token: ${{ secrets.BOT_TOKEN }}
           azure_service_id: ${{ secrets.DEPLOYMENT_AZURE_SERVICE_ID }}
           azure_service_secret: ${{ secrets.DEPLOYMENT_AZURE_SERVICE_SECRET }}
@@ -213,7 +213,7 @@ jobs:
         if: ${{ steps.config.outputs.cloud == 'GCP' }}
         uses: ./bp/cd/deploy/preview/gcp
         with:
-          cloud_type: ${{ steps.config.outputs.cloud }}
+          platform_type: 'ios'
           token: ${{ secrets.BOT_TOKEN }}
           gcp_credentials: ${{ secrets.PREVIEW_GCP_CREDENTIALS }}
           gcp_impersonate_sa: ${{ vars.PREVIEW_CGP_IMPERSONATE_SA }}

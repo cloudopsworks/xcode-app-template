@@ -111,7 +111,7 @@ jobs:
         if: ${{ inputs.cloud == 'AWS' }}
         uses: ./bp/cd/deploy/mobile/aws
         with:
-          cloud_type: ${{ inputs.cloud_type }}
+          platform_type: 'ios'
           token: ${{ secrets.token }}
           aws_region: ${{ steps.config.outputs.aws_region != '' && steps.config.outputs.aws_region || inputs.default_aws_region }}
           aws_sts_role_arn: ${{ steps.config.outputs.deploy_aws_sts_role_arn != '' && steps.config.outputs.deploy_aws_sts_role_arn || inputs.default_aws_sts_role_arn }}
@@ -128,7 +128,7 @@ jobs:
         if: ${{ inputs.cloud == 'AZURE' }}
         uses: ./bp/cd/deploy/mobile/azure
         with:
-          cloud_type: ${{ inputs.cloud_type }}
+          platform_type: 'ios'
           token: ${{ secrets.token }}
           azure_service_id: ${{ secrets.azure_service_id }}
           azure_service_secret: ${{ secrets.azure_service_secret }}
@@ -144,7 +144,7 @@ jobs:
         if: ${{ inputs.cloud == 'GCP' }}
         uses: ./bp/cd/deploy/mobile/gcp
         with:
-          cloud_type: ${{ inputs.cloud_type }}
+          platform_type: 'ios'
           token: ${{ secrets.token }}
           gcp_credentials: ${{ secrets.gcp_credentials }}
           gcp_impersonate_sa: ${{ steps.config.outputs.deploy_gcp_impersonate_sa != '' && steps.config.outputs.deploy_gcp_impersonate_sa || inputs.default_gcp_impersonate_sa }}
