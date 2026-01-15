@@ -19,10 +19,12 @@ on:
       - develop
       - support/**
       - release/**
-    paths-ignore:
-      - '.github/**'
-      - '!.github/vars/**'
-      - '!.github/values/**'
+    paths:
+      - '**'
+      - '!.github/**'
+      - '!.cloudopsworks/**'
+      - '.cloudopsworks/vars/**'
+      - '.cloudopsworks/values/**'
   workflow_dispatch:
 
 concurrency: build-${{ github.repository }}-${{ github.ref }}
@@ -63,9 +65,9 @@ jobs:
       xcode_destinations: ${{ steps.xconfig.outputs.xcode_destinations }}
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5.9
+        uses: cloudopsworks/blueprints/cd/checkout@v5.10
         with:
-          blueprint_ref: 'v5.9'
+          blueprint_ref: 'v5.10'
 
       - name: Pipeline Configuration
         id: config
@@ -89,9 +91,9 @@ jobs:
     runs-on: ${{ needs.preload.outputs.runner_set }}
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5.9
+        uses: cloudopsworks/blueprints/cd/checkout@v5.10
         with:
-          blueprint_ref: 'v5.9'
+          blueprint_ref: 'v5.10'
 
       - name: XCode Configuration
         id: xconfig
@@ -131,15 +133,15 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       (! cancelled()) &&
-      (needs.code-build.result == 'success') &&
+      (needs.preload.result == 'success') &&
       (needs.preload.outputs.is_release == 'true') &&
       (needs.preload.outputs.has_qualifier != 'true')
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5.9
+        uses: cloudopsworks/blueprints/cd/checkout@v5.10
         id: co
         with:
-          blueprint_ref: 'v5.9'
+          blueprint_ref: 'v5.10'
 
       - name: Perform Release
         uses: ./bp/cd/release
@@ -160,10 +162,10 @@ jobs:
       - code-build
     if: |
       (! cancelled()) && 
-      (needs.code-build.result == 'success')
+      (needs.preload.result == 'success')
     uses: ./.github/workflows/scan.yml
     with:
-      deployment_name: ${{ needs.code-build.outputs.deployment_name }}
+      deployment_name: ${{ needs.preload.outputs.deployment_name }}
       semver: ${{ needs.preload.outputs.semver }}
       bot_user: ${{ vars.BOT_USER }}
       sonarqube_url: ${{ vars.SONARQUBE_URL }}
@@ -183,7 +185,7 @@ jobs:
       - code-build
     if: |
       (! cancelled()) &&
-      (needs.code-build.result == 'success') &&
+      (needs.preload.result == 'success') &&
       (needs.preload.outputs.deployment_enabled == 'true')
     uses: ./.github/workflows/deploy.yml
     with:
@@ -193,13 +195,16 @@ jobs:
       runner_set: ${{ needs.preload.outputs.runner_set }}
       default_aws_region: ${{ vars.DEPLOYMENT_AWS_REGION }}
       default_aws_sts_role_arn: ${{ vars.DEPLOYMENT_AWS_STS_ROLE_ARN }}
-      default_azure_rg: ${{ vars.DEPLOYMENT_AZURE_RG }}
+      default_gcp_impersonate_sa: ${{ vars.DEPLOYMENT_GCP_IMPERSONATE_SA }}
+      default_gcp_project: ${{ vars.DEPLOYMENT_GCP_PROJECT }}
+      default_gcp_region: ${{ vars.DEPLOYMENT_GCP_REGION }}
+      default_azure_rg: ${{ vars.DEPLOYMENT_AZURE_RESOURCE_GROUP }}
       terraform_state_conf: ${{ vars.DEPLOYMENT_STATE_CONF }}
       semver: ${{ needs.preload.outputs.semver }}
-      apis_enabled: ${{ needs.preload.outputs.apis_enabled == 'true' }}
     secrets:
       token: ${{ secrets.BOT_TOKEN }}
       aws_access_key_id: ${{ secrets.DEPLOYMENT_AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.DEPLOYMENT_AWS_SECRET_ACCESS_KEY }}
       azure_service_id: ${{ secrets.DEPLOYMENT_AZURE_SERVICE_ID }}
       azure_service_secret: ${{ secrets.DEPLOYMENT_AZURE_SERVICE_SECRET }}
+      gcp_credentials: ${{ secrets.DEPLOYMENT_GCP_CREDENTIALS }}

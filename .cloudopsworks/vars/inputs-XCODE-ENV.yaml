@@ -33,6 +33,11 @@ xcode:
 # For GCP
 #gcp:
 #  secrets_path_filter: /secrets
+#  region: "GCP_REGION"
+#  project_id: "GCP_PROJECT"
+#  impersonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is same for build and deploy
+#  build_impresonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is different for build and deploy
+#  deploy_impersonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is different for build and deploy
 #  pod_identity:
 #    enabled: true
 #    service_account_name: SERVICE_ACCOUNT_NAME

@@ -59,19 +59,11 @@ on:
         required: false
         type: string
         default: ''
-      apis_enabled:
-        description: 'API Gateway Enabled'
+      default_gcp_impersonate_sa:
+        description: 'Default GCP Impersonation SA ID'
         required: false
-        type: boolean
-        default: false
-      observability_enabled:
-        description: 'Observability Enabled'
-        required: true
-        type: boolean
-      observability_agent:
-        description: 'Observability Agent'
-        required: true
         type: string
+        default: ''
     secrets:
       token:
         description: 'GitHub Token'
@@ -93,59 +85,22 @@ on:
         required: false
 
 jobs:
-  deploy-apis:
-    name: 'Deploy APIS into environment - Branch: ${{ github.ref_name }} - Env: ${{ inputs.deployment_name }}'
-    runs-on: ${{ inputs.runner_set }}
-    if: ${{ inputs.apis_enabled }}
-    environment: ${{ inputs.deployment_name }}
-    steps:
-      - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5.9
-        with:
-          blueprint_ref: 'v5.9'
-
-      # Get Pipeline Config
-      - name: Get Pipeline Config
-        id: config
-        uses: ./bp/ci/config
-
-      - name: Deploy API AWS
-        if: ${{ inputs.cloud == 'AWS' }}
-        uses: ./bp/cd/deploy/api/aws
-        with:
-          token: ${{ secrets.token }}
-          aws_region: ${{ steps.config.outputs.aws_region != '' && steps.config.outputs.aws_region || inputs.default_aws_region }}
-          aws_sts_role_arn: ${{ steps.config.outputs.deploy_aws_sts_role_arn != '' && steps.config.outputs.deploy_aws_sts_role_arn || inputs.default_aws_sts_role_arn }}
-          aws_access_key_id: ${{ secrets.aws_access_key_id }}
-          aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
-          terraform_state_conf: ${{ inputs.terraform_state_conf }}
-          release_name: ${{ steps.config.outputs.release_name }}
-          release_version: ${{ inputs.semver }}
-          project_key: ${{ steps.config.outputs.project_key }}
-          deployment_name: ${{ inputs.deployment_name }}
-          environment: ${{ steps.config.outputs.environment }}
-
-#      - name: Deploy API Azure
-#        if: ${{ inputs.cloud == 'AZURE' }}
-#        uses: ./bp/cd/deploy/api/azure
-#        with:
-#          token: ${{ secrets.token }}
-
-#      - name: Deploy API GoogleCloud
-#        if: ${{ inputs.cloud == 'GCP' }}
-#        uses: ./bp/cd/deploy/api/gcp
-#        with:
-#          token: ${{ secrets.token }}
-
   deploy-single:
     name: 'Deploy - Branch: ${{ github.ref_name }} - Env: ${{ inputs.deployment_name }}'
     runs-on: ${{ inputs.runner_set }}
     environment: ${{ inputs.deployment_name }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
+      AWS_DEFAULT_REGION: ${{ inputs.default_aws_region }}
+      GOOGLE_CREDENTIALS: ${{ secrets.gcp_credentials }}
+      ARM_CLIENT_ID: ${{ secrets.azure_service_id }}
+      ARM_CLIENT_SECRET: ${{ secrets.azure_service_secret }}
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5.9
+        uses: cloudopsworks/blueprints/cd/checkout@v5.10
         with:
-          blueprint_ref: 'v5.9'
+          blueprint_ref: 'v5.10'
 
       # Get Pipeline Config
       - name: Get Pipeline Config
@@ -154,7 +109,7 @@ jobs:
 
       - name: Deploy AWS
         if: ${{ inputs.cloud == 'AWS' }}
-        uses: ./bp/cd/deploy/app/aws
+        uses: ./bp/cd/deploy/mobile/aws
         with:
           cloud_type: ${{ inputs.cloud_type }}
           token: ${{ secrets.token }}
@@ -168,34 +123,31 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
-          observability_enabled: ${{ inputs.observability_enabled }}
-          observability_agent: ${{ inputs.observability_agent }}
 
       - name: Deploy Azure
         if: ${{ inputs.cloud == 'AZURE' }}
-        uses: ./bp/cd/deploy/app/azure
+        uses: ./bp/cd/deploy/mobile/azure
         with:
           cloud_type: ${{ inputs.cloud_type }}
           token: ${{ secrets.token }}
           azure_service_id: ${{ secrets.azure_service_id }}
           azure_service_secret: ${{ secrets.azure_service_secret }}
-          azure_rg: ${{ steps.config.outputs.azure_rg != '' && steps.config.outputs.azure_rg || inputs.default_azure_rg }}
+          azure_rg: ${{ steps.config.outputs.build_azure_rg != '' && steps.config.outputs.build_azure_rg || inputs.default_azure_rg }}
           terraform_state_conf: ${{ inputs.terraform_state_conf }}
           release_name: ${{ steps.config.outputs.release_name }}
           release_version: ${{ inputs.semver }}
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
-          observability_enabled: ${{ inputs.observability_enabled }}
-          observability_agent: ${{ inputs.observability_agent }}
 
       - name: Deploy GCP
         if: ${{ inputs.cloud == 'GCP' }}
-        uses: ./bp/cd/deploy/app/gcp
+        uses: ./bp/cd/deploy/mobile/gcp
         with:
           cloud_type: ${{ inputs.cloud_type }}
           token: ${{ secrets.token }}
           gcp_credentials: ${{ secrets.gcp_credentials }}
+          gcp_impersonate_sa: ${{ steps.config.outputs.deploy_gcp_impersonate_sa != '' && steps.config.outputs.deploy_gcp_impersonate_sa || inputs.default_gcp_impersonate_sa }}
           gcp_project: ${{ steps.config.outputs.gcp_project != '' && steps.config.outputs.gcp_project || inputs.default_gcp_project }}
           gcp_region: ${{ steps.config.outputs.gcp_region != '' && steps.config.outputs.gcp_region || inputs.default_gcp_region }}
           terraform_state_conf: ${{ inputs.terraform_state_conf }}
@@ -204,5 +156,3 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
-          observability_enabled: ${{ inputs.observability_enabled }}
-          observability_agent: ${{ inputs.observability_agent }}
