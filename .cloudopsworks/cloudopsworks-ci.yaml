@@ -27,6 +27,8 @@ excludeGlobs:
   - .tronador
   - Makefile
   - apifiles/*
+  - "**/*.xcarchive"
+  - "**/*.plist"
 
 # Repo & CD Configurations
 # Some of them previously managed in OWNERS file

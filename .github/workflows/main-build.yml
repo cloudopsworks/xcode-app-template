@@ -50,7 +50,6 @@ jobs:
     outputs:
       is_release: ${{ steps.config.outputs.is_release }}
       is_pre_release: ${{ steps.config.outputs.is_pre_release }}
-      semver: ${{ steps.build.outputs.semver }}
       deployment_name: ${{ steps.config.outputs.deployment_name }}
       target_cloud: ${{ steps.config.outputs.target_cloud }}
       deployment_enabled: ${{ steps.config.outputs.deployment_enabled }}
@@ -89,6 +88,8 @@ jobs:
         xcode_sdk: ${{ fromJSON(needs.preload.outputs.xcode_sdks) }}
         xcode_destination: ${{ fromJSON(needs.preload.outputs.xcode_destinations) }}
     runs-on: ${{ needs.preload.outputs.runner_set }}
+    outputs:
+      semver: ${{ steps.build.outputs.semver }}
     steps:
       - name: Checkout w/Blueprint
         uses: cloudopsworks/blueprints/cd/checkout@v5.10
@@ -147,8 +148,8 @@ jobs:
         uses: ./bp/cd/release
         with:
           source_path: ${{ steps.co.outputs.source_path }}
-          ref_name: ${{ needs.preload.outputs.semver }}
-          release_tag: ${{ needs.preload.outputs.semver }}
+          ref_name: ${{ needs.code-build.outputs.semver }}
+          release_tag: ${{ needs.code-build.outputs.semver }}
           is_pre_release: ${{ needs.preload.outputs.is_pre_release == 'true' }}
           files_globs: |
             *.zip
