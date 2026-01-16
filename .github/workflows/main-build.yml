@@ -162,7 +162,8 @@ jobs:
       - code-build
     if: |
       (! cancelled()) && 
-      (needs.preload.result == 'success')
+      (needs.preload.result == 'success') &&
+      (needs.code-build.result == 'success')
     uses: ./.github/workflows/scan.yml
     with:
       deployment_name: ${{ needs.preload.outputs.deployment_name }}
@@ -186,7 +187,8 @@ jobs:
     if: |
       (! cancelled()) &&
       (needs.preload.result == 'success') &&
-      (needs.preload.outputs.deployment_enabled == 'true')
+      (needs.preload.outputs.deployment_enabled == 'true') &&
+      (needs.code-build.result == 'success')
     uses: ./.github/workflows/deploy.yml
     with:
       deployment_name: ${{ needs.preload.outputs.deployment_name }}

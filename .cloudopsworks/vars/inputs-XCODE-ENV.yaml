@@ -26,6 +26,9 @@ xcode:
 #  build_sts_role_arn: "BUILD_AWS_STS_ROLE_ARN" # Optional: set this if the build and deploy roles are different
 #  deploy_sts_role_arn: "DEPLOY AWS_STS_ROLE_ARN" # Optional: set this if the build and deploy roles are different
 #  secrets_path_filter: /secrets
+#  device_farm_name: DEVICE_FARM_NAME
+#  test_script_path: device_tests
+#  test_script_type: APPIUM_PYTHON|APPIUM_JAVA|XCTEST|UIAUTOMATION|INSTRUMENTATION
 #  pod_identity:
 #    enabled: true
 #    iam_role_name: ROLE_NAME
