@@ -8,7 +8,6 @@
 #
 zipGlobs:
   - "build/build_artifacts/*.ipa"
-  - "arch/build_artifacts/*.app"
 excludeGlobs:
   - Dockerfile
   - .helmignore
