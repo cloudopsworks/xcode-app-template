@@ -102,6 +102,8 @@ jobs:
         xcode_scheme: ${{ fromJSON(needs.preload.outputs.xcode_schemes) }}
         xcode_sdk: ${{ fromJSON(needs.preload.outputs.xcode_sdks) }}
         xcode_destination: ${{ fromJSON(needs.preload.outputs.xcode_destinations) }}
+    outputs:
+      semver: ${{ steps.build.outputs.semver }}
     runs-on: ${{ needs.preload.outputs.runner_set }}
     steps:
       - name: Checkout w/Blueprint
