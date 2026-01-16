@@ -168,7 +168,7 @@ jobs:
     uses: ./.github/workflows/scan.yml
     with:
       deployment_name: ${{ needs.preload.outputs.deployment_name }}
-      semver: ${{ needs.preload.outputs.semver }}
+      semver: ${{ needs.code-build.outputs.semver }}
       bot_user: ${{ vars.BOT_USER }}
       sonarqube_url: ${{ vars.SONARQUBE_URL }}
       dtrack_url: ${{ vars.DEPENDENCYTRACK_URL }}
@@ -203,7 +203,7 @@ jobs:
       default_gcp_region: ${{ vars.DEPLOYMENT_GCP_REGION }}
       default_azure_rg: ${{ vars.DEPLOYMENT_AZURE_RESOURCE_GROUP }}
       terraform_state_conf: ${{ vars.DEPLOYMENT_STATE_CONF }}
-      semver: ${{ needs.preload.outputs.semver }}
+      semver: ${{ needs.code-build.outputs.semver }}
     secrets:
       token: ${{ secrets.BOT_TOKEN }}
       aws_access_key_id: ${{ secrets.DEPLOYMENT_AWS_ACCESS_KEY_ID }}
