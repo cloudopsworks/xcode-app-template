@@ -114,13 +114,16 @@ jobs:
           xcode_sdk: ${{ matrix.xcode_sdk }}
           xcode_destination: ${{ matrix.xcode_destination }}
           xcode_extra_args: ${{ steps.xconfig.outputs.xcode_extra_args }}
+          xcode_extra_targets: ${{ steps.xconfig.outputs.xcode_extra_targets }}
           xcode_configuration: ${{ steps.xconfig.outputs.xcode_configuration }}
           xcode_dev_team: ${{ steps.xconfig.outputs.xcode_dev_team }}
           xcode_product_bundle: ${{ steps.xconfig.outputs.xcode_product_bundle }}
           build_certificate_b64: ${{ secrets.XCODE_BUILD_CERTIFICATE_BASE64 }}
           build_certificate_pass: ${{ secrets.XCODE_BUILD_CERTIFICATE_PASS }}
           build_provision_profile_b64: ${{ secrets.XCODE_PROVISION_PROFILE_BASE64 }}
-          dev_provision_profile_b64: ${{ secrets.XCODE_DEV_PROVISION_PROFILE_BASE64 }}
+          dev_build_certificate_b64: ${{ secrets.XCODE_DEV_BUILD_CERTIFICATE_BASE64 }}
+          dev_build_certificate_pass: ${{ secrets.XCODE_DEV_BUILD_CERTIFICATE_PASS }}
+          dev_build_provision_profile_b64: ${{ secrets.XCODE_DEV_PROVISION_PROFILE_BASE64 }}
           keychain_password: ${{ secrets.XCODE_KEYCHAIN_PASSWORD }}
           build_export_options_plist: ${{ secrets.XCODE_EXPORT_OPTIONS_PLIST }}
 
