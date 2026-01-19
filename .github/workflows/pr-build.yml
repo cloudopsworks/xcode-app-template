@@ -38,10 +38,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5.9
+        uses: cloudopsworks/blueprints/cd/checkout@v5.10
         with:
           source_ref: ${{ github.head_ref }}
-          blueprint_ref: 'v5.9'
+          blueprint_ref: 'v5.10'
 
       - name: Pipeline Configuration
         id: config
@@ -75,12 +75,13 @@ jobs:
       xcode_schemes: ${{ steps.xconfig.outputs.xcode_schemes }}
       xcode_sdks: ${{ steps.xconfig.outputs.xcode_sdks }}
       xcode_destinations: ${{ steps.xconfig.outputs.xcode_destinations }}
+      has_preview: ${{ steps.config.outputs.has_preview }}
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5.9
+        uses: cloudopsworks/blueprints/cd/checkout@v5.10
         with:
           source_ref: ${{ github.head_ref }}
-          blueprint_ref: 'v5.9'
+          blueprint_ref: 'v5.10'
 
       - name: Pipeline Configuration
         id: config
@@ -101,13 +102,15 @@ jobs:
         xcode_scheme: ${{ fromJSON(needs.preload.outputs.xcode_schemes) }}
         xcode_sdk: ${{ fromJSON(needs.preload.outputs.xcode_sdks) }}
         xcode_destination: ${{ fromJSON(needs.preload.outputs.xcode_destinations) }}
+    outputs:
+      semver: ${{ steps.build.outputs.semver }}
     runs-on: ${{ needs.preload.outputs.runner_set }}
     steps:
       - name: Checkout w/Blueprint
-        uses: cloudopsworks/blueprints/cd/checkout@v5.9
+        uses: cloudopsworks/blueprints/cd/checkout@v5.10
         with:
           source_ref: ${{ github.head_ref }}
-          blueprint_ref: 'v5.9'
+          blueprint_ref: 'v5.10'
 
       - name: XCode Configuration
         id: xconfig
@@ -127,17 +130,112 @@ jobs:
           xcode_sdk: ${{ matrix.xcode_sdk }}
           xcode_destination: ${{ matrix.xcode_destination }}
           xcode_extra_args: ${{ steps.xconfig.outputs.xcode_extra_args }}
+          xcode_extra_targets: ${{ steps.xconfig.outputs.xcode_extra_targets }}
           xcode_configuration: ${{ steps.xconfig.outputs.xcode_configuration }}
           xcode_dev_team: ${{ steps.xconfig.outputs.xcode_dev_team }}
           xcode_product_bundle: ${{ steps.xconfig.outputs.xcode_product_bundle }}
           build_certificate_b64: ${{ secrets.XCODE_BUILD_CERTIFICATE_BASE64 }}
           build_certificate_pass: ${{ secrets.XCODE_BUILD_CERTIFICATE_PASS }}
           build_provision_profile_b64: ${{ secrets.XCODE_PROVISION_PROFILE_BASE64 }}
+          dev_build_certificate_b64: ${{ secrets.XCODE_DEV_BUILD_CERTIFICATE_BASE64 }}
+          dev_build_certificate_pass: ${{ secrets.XCODE_DEV_BUILD_CERTIFICATE_PASS }}
+          dev_build_provision_profile_b64: ${{ secrets.XCODE_DEV_PROVISION_PROFILE_BASE64 }}
           keychain_password: ${{ secrets.XCODE_KEYCHAIN_PASSWORD }}
           build_export_options_plist: ${{ secrets.XCODE_EXPORT_OPTIONS_PLIST }}
 
       - name: Save Build Artifacts
         uses: ./bp/ci/xcode/artifacts
+
+  preview:
+    name: 'Preview Deployment'
+    needs:
+      - preload
+      - code-build
+    if: needs.preload.outputs.has_preview == 'true'
+    runs-on: ${{ needs.preload.outputs.runner_set }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.DEPLOYMENT_AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOYMENT_AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ vars.DEPLOYMENT_AWS_REGION }}
+      GOOGLE_CREDENTIALS: ${{ secrets.DEPLOYMENT_GCP_CREDENTIALS }}
+      ARM_CLIENT_ID: ${{ secrets.DEPLOYMENT_AZURE_SERVICE_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.DEPLOYMENT_AZURE_SERVICE_SECRET }}
+    steps:
+      - name: Checkout w/Blueprint
+        uses: cloudopsworks/blueprints/cd/checkout@v5.10
+        with:
+          source_ref: ${{ github.head_ref }}
+          blueprint_ref: 'v5.10'
+
+      # Get Pipeline Config
+      - name: Get Pipeline Config
+        id: config
+        uses: ./bp/ci/config
+
+      - name: Deploy AWS
+        if: ${{ steps.config.outputs.cloud == 'AWS' }}
+        uses: ./bp/cd/deploy/preview/aws
+        with:
+          platform_type: 'ios'
+          token: ${{ secrets.BOT_TOKEN }}
+          aws_region: ${{ vars.PREVIEW_AWS_REGION }}
+          aws_sts_role_arn: ${{ vars.PREVIEW_AWS_STS_ROLE_ARN }}
+          aws_access_key_id: ${{ secrets.PREVIEW_AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.PREVIEW_AWS_SECRET_ACCESS_KEY }}
+          terraform_state_conf: ${{ vars.DEPLOYMENT_STATE_CONF }}
+          release_name: ${{ steps.config.outputs.release_name }}
+          release_version: ${{ needs.code-build.outputs.semver }}
+          project_key: ${{ steps.config.outputs.project_key }}
+          project_owner: ${{ steps.config.outputs.project_owner }}
+          deployment_name: ${{ steps.config.outputs.deployment_name }}
+          environment: ${{ steps.config.outputs.environment }}
+          container_registry: ${{ vars.PREVIEW_DOCKER_REGISTRY_ADDRESS }}
+          pull_request_name: pr${{ github.event.pull_request.number }}
+          cluster_name: ${{ vars.PREVIEW_AWS_EKS_CLUSTER_NAME }}
+          rancher_project_id: ${{ vars.PREVIEW_RANCHER_PROJECT_ID }}
+
+      - name: Deploy Azure
+        if: ${{ steps.config.outputs.cloud == 'AZURE' }}
+        uses: ./bp/cd/deploy/preview/azure
+        with:
+          platform_type: 'ios'
+          token: ${{ secrets.BOT_TOKEN }}
+          azure_service_id: ${{ secrets.DEPLOYMENT_AZURE_SERVICE_ID }}
+          azure_service_secret: ${{ secrets.DEPLOYMENT_AZURE_SERVICE_SECRET }}
+          azure_rg: ${{ steps.config.outputs.preview_azure_rg != '' && steps.config.outputs.preview_azure_rg || vars.PREVIEW_AZURE_RESOURCE_GROUP }}
+          terraform_state_conf: ${{ inputs.terraform_state_conf }}
+          release_name: ${{ steps.config.outputs.release_name }}
+          release_version: ${{ needs.code-build.outputs.semver }}
+          project_key: ${{ steps.config.outputs.project_key }}
+          project_owner: ${{ steps.config.outputs.project_owner }}
+          deployment_name: ${{ steps.config.outputs.deployment_name }}
+          environment: ${{ steps.config.outputs.environment }}
+          container_registry: ${{ vars.PREVIEW_DOCKER_REGISTRY_ADDRESS }}
+          pull_request_name: pr${{ github.event.pull_request.number }}
+          cluster_name: ${{ vars.PREVIEW_AZURE_AKS_CLUSTER_NAME }}
+          rancher_project_id: ${{ vars.PREVIEW_RANCHER_PROJECT_ID }}
+
+      - name: Deploy GCP
+        if: ${{ steps.config.outputs.cloud == 'GCP' }}
+        uses: ./bp/cd/deploy/preview/gcp
+        with:
+          platform_type: 'ios'
+          token: ${{ secrets.BOT_TOKEN }}
+          gcp_credentials: ${{ secrets.PREVIEW_GCP_CREDENTIALS }}
+          gcp_impersonate_sa: ${{ vars.PREVIEW_CGP_IMPERSONATE_SA }}
+          gcp_project: ${{ vars.PREVIEW_GCP_PROJECT }}
+          gcp_region: ${{ vars.PREVIEW_GCP_REGION }}
+          terraform_state_conf: ${{ inputs.terraform_state_conf }}
+          release_name: ${{ steps.config.outputs.release_name }}
+          release_version: ${{ needs.code-build.outputs.semver }}
+          project_key: ${{ steps.config.outputs.project_key }}
+          project_owner: ${{ steps.config.outputs.project_owner }}
+          deployment_name: ${{ steps.config.outputs.deployment_name }}
+          environment: ${{ steps.config.outputs.environment }}
+          container_registry: ${{ vars.PREVIEW_DOCKER_REGISTRY_ADDRESS }}
+          pull_request_name: pr${{ github.event.pull_request.number }}
+          cluster_name: ${{ vars.PREVIEW_GCP_GKE_CLUSTER_NAME }}
+          rancher_project_id: ${{ vars.PREVIEW_RANCHER_PROJECT_ID }}
 
   scan:
     name: 'Code Scan SAST/SCA/DAST'
@@ -147,7 +245,7 @@ jobs:
     uses: ./.github/workflows/scan.yml
     with:
       deployment_name: ${{ needs.preload.outputs.deployment_name }}
-      semver: ${{ needs.preload.outputs.semver }}
+      semver: ${{ needs.code-build.outputs.semver }}
       bot_user: ${{ vars.BOT_USER }}
       sonarqube_url: ${{ vars.SONARQUBE_URL }}
       dtrack_url: ${{ vars.DEPENDENCYTRACK_URL }}
