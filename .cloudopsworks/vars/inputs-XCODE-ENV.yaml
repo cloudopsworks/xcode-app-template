@@ -28,12 +28,18 @@ xcode:
 #  secrets_path_filter: /secrets
 #  interactive_sesions: true
 #  device_farm_name: DEVICE_FARM_NAME
-#  device_farm_pool: DEVICE_FARM_POOL_NAME
+#  device_farm_pool: DEVICE_FARM_POOL_NAME # (optional) If there is a Farm Pool Defined if not, define specific device below.
+#  device:                                 # (optional) Required if Farm Pool is not defined.
+#    form_factor: "PHONE"
+#    model: "Apple iPhone 14 Pro"
+#    os_version: "17.3.1"
+#    max_devices: 1
+#
 #  test_script_path: device_tests
-#  test_script_type: APPIUM_PYTHON|APPIUM_JAVA|XCTEST|UIAUTOMATION|INSTRUMENTATION
+#  test_script_type: APPIUM_JAVA_JUNIT_TEST_PACKAGE | APPIUM_JAVA_TESTNG_TEST_PACKAGE | APPIUM_PYTHON_TEST_PACKAGE | APPIUM_NODE_TEST_PACKAGE | APPIUM_RUBY_TEST_PACKAGE | APPIUM_WEB_JAVA_JUNIT_TEST_PACKAGE | APPIUM_WEB_JAVA_TESTNG_TEST_PACKAGE | APPIUM_WEB_PYTHON_TEST_PACKAGE | APPIUM_WEB_NODE_TEST_PACKAGE | APPIUM_WEB_RUBY_TEST_PACKAGE | CALABASH_TEST_PACKAGE | INSTRUMENTATION_TEST_PACKAGE | UIAUTOMATION_TEST_PACKAGE | UIAUTOMATOR_TEST_PACKAGE | XCTEST_TEST_PACKAGE | XCTEST_UI_TEST_PACKAGE | APPIUM_JAVA_JUNIT_TEST_SPEC | APPIUM_JAVA_TESTNG_TEST_SPEC | APPIUM_PYTHON_TEST_SPEC | APPIUM_NODE_TEST_SPEC | APPIUM_RUBY_TEST_SPEC | APPIUM_WEB_JAVA_JUNIT_TEST_SPEC | APPIUM_WEB_JAVA_TESTNG_TEST_SPEC | APPIUM_WEB_PYTHON_TEST_SPEC | APPIUM_WEB_NODE_TEST_SPEC | APPIUM_WEB_RUBY_TEST_SPEC | INSTRUMENTATION_TEST_SPEC | XCTEST_UI_TEST_SPEC
 #  # Interactive Session Configuration - Use with caution could skyrocket costs
 #  session_config:
-#    form_factor: PHONE
+#    form_factor: "PHONE"
 #    model: "Apple iPhone 14 Pro"
 #    os_version: "17.3.1"
 #
@@ -49,6 +55,16 @@ xcode:
 #  impersonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is same for build and deploy
 #  build_impresonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is different for build and deploy
 #  deploy_impersonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is different for build and deploy
+#  devices:
+#    - model_id: "iphone11pro"
+#      version_id: "16.6"
+#      locale_id: "en_US"
+#      orientation: "landscape"
+#    - model_id: "iphone14pro"
+#
+#  test_lab_bucket: "TEST_BUCKET_ACCESS_REQUIRED"
+#  test_script_path: "I am GrootUITests"
+#  test_script_type: "robo | xctest | game-loop"
 #  pod_identity:
 #    enabled: true
 #    service_account_name: SERVICE_ACCOUNT_NAME

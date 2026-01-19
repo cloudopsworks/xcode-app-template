@@ -3,12 +3,12 @@ organization_unit: "ORG_UNIT"
 environment_name: "ENV_NAME"
 repository_owner: "REPO_OWNER" # Required
 #
-## Default node version is 20, uncomment to build with different, default dist is adopt, uncomment to use different dist
+## Default XCode version is 16.4, uncomment to build with different, default dist is adopt, uncomment to use different dist
 ## Image variant is alpine by default, uncomment to use different image variant for the specified dist
 xcode:
   version: 16.4
   extra_args: -allowProvisioningUpdates
-  #extra_targets: build-for-testing
+  #extra_targets: build-for-testing   # (optional) Required if deploying to AWS Device Farm or Google Firebase Test Lab
   #dev_team: <ID>
   #product_bundle: <product bundle>
   schemes:
@@ -17,7 +17,10 @@ xcode:
     - iphoneos
   destinations:
     - "generic/platform=iOS"
-    - "platform=iOS Simulator,OS=17.2,name=iPhone 14"
+#    - platform=iOS Simulator,arch=arm64,OS=18.5,name=iPhone 16 Pro
+#    - platform=iOS Simulator,OS=18.2,name=iPhone 14 Pro
+#    - platform=iOS Simulator,OS=16.1,name=iPhone 14 Pro Max
+#    - platform=iOS Simulator,OS=17.2,name=iPhone 14 Pro Max
 #
 # Set Snyk processing to true if want to enable, the tool is disabled by default
 #snyk:
