@@ -55,6 +55,16 @@ xcode:
 #  impersonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is same for build and deploy
 #  build_impresonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is different for build and deploy
 #  deploy_impersonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is different for build and deploy
+#  devices:
+#    - model_id: "iphone11pro"
+#      version_id: "16.6"
+#      locale_id: "en_US"
+#      orientation: "landscape"
+#    - model_id: "iphone14pro"
+#
+#  test_lab_bucket: "TEST_BUCKET_ACCESS_REQUIRED"
+#  test_script_path: "I am GrootUITests"
+#  test_script_type: "robo | xctest | game-loop"
 #  pod_identity:
 #    enabled: true
 #    service_account_name: SERVICE_ACCOUNT_NAME
