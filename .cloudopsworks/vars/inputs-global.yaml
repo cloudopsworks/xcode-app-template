@@ -9,8 +9,16 @@ xcode:
   version: 16.4
   extra_args: -allowProvisioningUpdates
   #extra_targets: build-for-testing   # (optional) Required if deploying to AWS Device Farm or Google Firebase Test Lab
-  #dev_team: <ID>
-  #product_bundle: <product bundle>
+  dev_team: "<ID>"                   # (Required) Apple Developer Team ID
+  product_bundle: "<product bundle>" # (Required) Product bundle identifier, must match from xcode Project
+  export_options:
+    type: "ad_hoc"
+    method: "release-testing"
+    profile: "PROFILENAME"
+    app_url: "https://example.com/app/app.ipa"
+    image_url: "https://www.cloudopsworks.co/image.57x57.png"
+    full_image_url: "https://www.cloudopsworks.co/image.512x512.png"
+    #signing_certificate: "Apple Distribution"
   schemes:
     - "I am Groot"
   sdks:
