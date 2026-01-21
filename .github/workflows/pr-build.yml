@@ -134,6 +134,8 @@ jobs:
           xcode_configuration: ${{ steps.xconfig.outputs.xcode_configuration }}
           xcode_dev_team: ${{ steps.xconfig.outputs.xcode_dev_team }}
           xcode_product_bundle: ${{ steps.xconfig.outputs.xcode_product_bundle }}
+          xcode_unsigned: ${{ steps.xconfig.outputs.xcode_unsigned }}
+          xcode_build_for_testing: ${{ steps.xconfig.outputs.xcode_build_for_testing }}
           build_certificate_b64: ${{ secrets.XCODE_BUILD_CERTIFICATE_BASE64 }}
           build_certificate_pass: ${{ secrets.XCODE_BUILD_CERTIFICATE_PASS }}
           build_provision_profile_b64: ${{ secrets.XCODE_PROVISION_PROFILE_BASE64 }}
@@ -145,6 +147,10 @@ jobs:
 
       - name: Save Build Artifacts
         uses: ./bp/ci/xcode/artifacts
+        with:
+          xcode_scheme: ${{ matrix.xcode_scheme }}
+          xcode_sdk: ${{ matrix.xcode_sdk }}
+          xcode_destination: ${{ matrix.xcode_destination }}
 
   preview:
     name: 'Preview Deployment'

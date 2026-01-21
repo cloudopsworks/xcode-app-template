@@ -9,9 +9,11 @@ xcode:
   version: 16.4
   extra_args: -allowProvisioningUpdates
   #extra_targets: build-for-testing   # (optional) Required if deploying to AWS Device Farm or Google Firebase Test Lab
-  dev_team: "<ID>"                   # (Required) Apple Developer Team ID
-  product_bundle: "<product bundle>" # (Required) Product bundle identifier, must match from xcode Project
-  export_options:
+  #build_for_testing: true            # (optional) Required if building for testing or distribution, defaults to false
+  #unsigned: true                     # (optional) Required if building for testing or distribution without signing, defaults to false
+  dev_team: "<ID>"                   # (required) Apple Developer Team ID
+  product_bundle: "<product bundle>" # (required) Product bundle identifier, must match from xcode Project
+  export_options:                    # (required) If code will be singed (the default), if unsinged=true, this can be omitted
     type: "ad_hoc"
     method: "release-testing"
     profile: "PROFILENAME"

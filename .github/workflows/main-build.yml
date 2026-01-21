@@ -118,6 +118,8 @@ jobs:
           xcode_configuration: ${{ steps.xconfig.outputs.xcode_configuration }}
           xcode_dev_team: ${{ steps.xconfig.outputs.xcode_dev_team }}
           xcode_product_bundle: ${{ steps.xconfig.outputs.xcode_product_bundle }}
+          xcode_unsigned: ${{ steps.xconfig.outputs.xcode_unsigned }}
+          xcode_build_for_testing: ${{ steps.xconfig.outputs.xcode_build_for_testing }}
           build_certificate_b64: ${{ secrets.XCODE_BUILD_CERTIFICATE_BASE64 }}
           build_certificate_pass: ${{ secrets.XCODE_BUILD_CERTIFICATE_PASS }}
           build_provision_profile_b64: ${{ secrets.XCODE_PROVISION_PROFILE_BASE64 }}
@@ -129,6 +131,10 @@ jobs:
 
       - name: Save Build Artifacts
         uses: ./bp/ci/xcode/artifacts
+        with:
+          xcode_scheme: ${{ matrix.xcode_scheme }}
+          xcode_sdk: ${{ matrix.xcode_sdk }}
+          xcode_destination: ${{ matrix.xcode_destination }}
 
   release:
     name: 'Generate Release'
@@ -194,6 +200,11 @@ jobs:
       (needs.preload.result == 'success') &&
       (needs.preload.outputs.deployment_enabled == 'true') &&
       (needs.code-build.result == 'success')
+    strategy:
+      matrix:
+        xcode_scheme: ${{ fromJSON(needs.preload.outputs.xcode_schemes) }}
+        xcode_sdk: ${{ fromJSON(needs.preload.outputs.xcode_sdks) }}
+        xcode_destination: ${{ fromJSON(needs.preload.outputs.xcode_destinations) }}
     uses: ./.github/workflows/deploy.yml
     with:
       deployment_name: ${{ needs.preload.outputs.deployment_name }}
@@ -208,6 +219,9 @@ jobs:
       default_azure_rg: ${{ vars.DEPLOYMENT_AZURE_RESOURCE_GROUP }}
       terraform_state_conf: ${{ vars.DEPLOYMENT_STATE_CONF }}
       semver: ${{ needs.code-build.outputs.semver }}
+      xcode_scheme: ${{ matrix.xcode_scheme }}
+      xcode_sdk: ${{ matrix.xcode_sdk }}
+      xcode_destination: ${{ matrix.xcode_destination }}
     secrets:
       token: ${{ secrets.BOT_TOKEN }}
       aws_access_key_id: ${{ secrets.DEPLOYMENT_AWS_ACCESS_KEY_ID }}
