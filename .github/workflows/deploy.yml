@@ -64,6 +64,18 @@ on:
         required: false
         type: string
         default: ''
+      xcode_scheme:
+        description: 'Xcode Scheme to build and test'
+        required: true
+        type: string
+      xcode_sdk:
+        description: 'Xcode SDK to build and test'
+        required: true
+        type: string
+      xcode_destination:
+        description: 'Xcode Destination to build and test'
+        required: true
+        type: string
     secrets:
       token:
         description: 'GitHub Token'
@@ -123,6 +135,9 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
+          xcode_scheme: ${{ inputs.xcode_scheme }}
+          xcode_sdk: ${{ inputs.xcode_sdk }}
+          xcode_destination: ${{ inputs.xcode_destination }}
 
       - name: Deploy Azure
         if: ${{ inputs.cloud == 'AZURE' }}
@@ -139,6 +154,9 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
+          xcode_scheme: ${{ inputs.xcode_scheme }}
+          xcode_sdk: ${{ inputs.xcode_sdk }}
+          xcode_destination: ${{ inputs.xcode_destination }}
 
       - name: Deploy GCP
         if: ${{ inputs.cloud == 'GCP' }}
@@ -156,3 +174,6 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
+          xcode_scheme: ${{ inputs.xcode_scheme }}
+          xcode_sdk: ${{ inputs.xcode_sdk }}
+          xcode_destination: ${{ inputs.xcode_destination }}

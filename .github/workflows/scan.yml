@@ -113,13 +113,6 @@ jobs:
         with:
           blueprint_ref: 'v5.10'
 
-      - name: Download Target Artifacts
-        uses: ./bp/ci/common/download/artifacts
-        with:
-          bot_user: ${{ inputs.bot_user }}
-          token: ${{ secrets.token }}
-          destination_path: 'target'
-
       - name: Semgrep Scan
         if: ${{ needs.preload.outputs.semgrep_enabled == 'true' }}
         uses: ./bp/ci/xcode/scan/semgrep
@@ -142,13 +135,6 @@ jobs:
         id: co
         with:
           blueprint_ref: 'v5.10'
-
-      - name: Download Target Artifacts
-        uses: ./bp/ci/common/download/artifacts
-        with:
-          bot_user: ${{ inputs.bot_user }}
-          token: ${{ secrets.token }}
-          destination_path: 'target'
 
       - name: Snyk Scan
         if: ${{ needs.preload.outputs.snyk_enabled == 'true' }}
