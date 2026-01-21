@@ -8,7 +8,7 @@ repository_owner: "REPO_OWNER" # Required
 xcode:
   version: 16.4
   extra_args: -allowProvisioningUpdates
-  #extra_targets: build-for-testing   # (optional) Required if deploying to AWS Device Farm or Google Firebase Test Lab
+  #extra_targets: <extra-targets parameters>   # (optional) Required if deploying to AWS Device Farm or Google Firebase Test Lab
   #build_for_testing: true            # (optional) Required if building for testing or distribution, defaults to false
   #unsigned: true                     # (optional) Required if building for testing or distribution without signing, defaults to false
   dev_team: "<ID>"                   # (required) Apple Developer Team ID
