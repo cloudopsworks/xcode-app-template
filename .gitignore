@@ -131,6 +131,7 @@ dist
 
 ### XCODE ###
 *.xcuserdatad/
+Project/
 
 ### VS Code ###
 .vscode/
