@@ -90,6 +90,7 @@ jobs:
     runs-on: ${{ needs.preload.outputs.runner_set }}
     outputs:
       semver: ${{ steps.build.outputs.semver }}
+      xcode_version: ${{ steps.xconfig.outputs.xcode_version }}
     steps:
       - name: Checkout w/Blueprint
         uses: cloudopsworks/blueprints/cd/checkout@v5.10
@@ -219,6 +220,7 @@ jobs:
       default_azure_rg: ${{ vars.DEPLOYMENT_AZURE_RESOURCE_GROUP }}
       terraform_state_conf: ${{ vars.DEPLOYMENT_STATE_CONF }}
       semver: ${{ needs.code-build.outputs.semver }}
+      xcode_version: ${{ needs.code-build.outputs.xcode_version }}
       xcode_scheme: ${{ matrix.xcode_scheme }}
       xcode_sdk: ${{ matrix.xcode_sdk }}
       xcode_destination: ${{ matrix.xcode_destination }}

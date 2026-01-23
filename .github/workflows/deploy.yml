@@ -64,6 +64,10 @@ on:
         required: false
         type: string
         default: ''
+      xcode_version:
+        description: 'Xcode Version to use for build and test'
+        required: true
+        type: string
       xcode_scheme:
         description: 'Xcode Scheme to build and test'
         required: true
@@ -101,13 +105,6 @@ jobs:
     name: 'Deploy - Branch: ${{ github.ref_name }} - Env: ${{ inputs.deployment_name }}'
     runs-on: ${{ inputs.runner_set }}
     environment: ${{ inputs.deployment_name }}
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
-      AWS_DEFAULT_REGION: ${{ inputs.default_aws_region }}
-      GOOGLE_CREDENTIALS: ${{ secrets.gcp_credentials }}
-      ARM_CLIENT_ID: ${{ secrets.azure_service_id }}
-      ARM_CLIENT_SECRET: ${{ secrets.azure_service_secret }}
     steps:
       - name: Checkout w/Blueprint
         uses: cloudopsworks/blueprints/cd/checkout@v5.10
@@ -135,6 +132,7 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
+          xcode_version: ${{ inputs.xcode_version }}
           xcode_scheme: ${{ inputs.xcode_scheme }}
           xcode_sdk: ${{ inputs.xcode_sdk }}
           xcode_destination: ${{ inputs.xcode_destination }}
@@ -154,6 +152,7 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
+          xcode_version: ${{ inputs.xcode_version }}
           xcode_scheme: ${{ inputs.xcode_scheme }}
           xcode_sdk: ${{ inputs.xcode_sdk }}
           xcode_destination: ${{ inputs.xcode_destination }}
@@ -174,6 +173,7 @@ jobs:
           project_key: ${{ steps.config.outputs.project_key }}
           deployment_name: ${{ inputs.deployment_name }}
           environment: ${{ steps.config.outputs.environment }}
+          xcode_version: ${{ inputs.xcode_version }}
           xcode_scheme: ${{ inputs.xcode_scheme }}
           xcode_sdk: ${{ inputs.xcode_sdk }}
           xcode_destination: ${{ inputs.xcode_destination }}
