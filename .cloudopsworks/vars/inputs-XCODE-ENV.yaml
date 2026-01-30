@@ -30,6 +30,8 @@ xcode:
 #  device_farm_name: DEVICE_FARM_NAME
 #  device_farm_pool: DEVICE_FARM_POOL_NAME # (optional) If there is a Farm Pool Defined if not, define specific device below.
 #  device:                                 # (optional) Required if Farm Pool is not defined.
+#    # To retrieve device list for these details:
+#    #   aws devicefarm list-devices --region us-west-2 --filters attribute=PLATFORM,operator=EQUALS,values=IOS --query 'devices[].[model,formFactor,os]' --output table
 #    form_factor: "PHONE"
 #    model: "Apple iPhone 14 Pro"
 #    os_version: "17.3.1"
@@ -56,6 +58,8 @@ xcode:
 #  build_impresonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is different for build and deploy
 #  deploy_impersonate_sa: "GCP project Service Account e-mail" # Optional: when existing role is different for build and deploy
 #  devices:
+#    # To retrieve device list for these details:
+#    #   gcloud firebase test ios models list
 #    - model_id: "iphone11pro"
 #      version_id: "16.6"
 #      locale_id: "en_US"
