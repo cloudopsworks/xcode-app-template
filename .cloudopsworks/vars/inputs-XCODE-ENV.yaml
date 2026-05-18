@@ -1,6 +1,6 @@
 # This file contains the environment variables for the Kubernetes deployment
 environment: "dev|uat|prod|demo"
-#runner_set: "macos-14"
+#runner_set: "macos-15"  # Optional: when using self-hosted runners or different of macos-latest
 disable_deploy: true     # (optional) comment out if iOS Application has UI Tests or XCtests and build_for_testing=true in inputs-global.yaml
 xcode:
   configuration: Debug | Release | <...>
