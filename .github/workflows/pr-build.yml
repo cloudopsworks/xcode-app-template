@@ -35,6 +35,7 @@ permissions:
 
 jobs:
   check-pr:
+    name: Check Pull Request
     runs-on: ubuntu-latest
     steps:
       - name: Checkout w/Blueprint
