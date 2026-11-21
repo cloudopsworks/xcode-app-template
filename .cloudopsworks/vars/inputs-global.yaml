@@ -78,6 +78,7 @@ xcode:
 #  gcp:
 #    project_id: PREVIEW_PROJECT_ID
 #
+#
 # Optional additions to the blueprint artifact packaging defaults.
 #zipGlobs:
 #  - "assets/**"
