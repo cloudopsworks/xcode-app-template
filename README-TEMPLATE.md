@@ -2,8 +2,8 @@
 
 ## Agent command policy
 
-The `Makefile` remains for compatibility, but direct Make invocation is deprecated
-for README and Git-flow/version operations. Agents must use the Tronador CLI:
+Use the Tronador CLI (`tronador-cli`, executable `tronador`) directly for
+project setup, documentation, template upgrades, and version operations:
 
 - Run `tronador readme build` to render README output. If committed target/dependency
   documentation also needs refresh, run `tronador docs targets` first.
@@ -63,6 +63,14 @@ Use this template when you want a repository that already includes:
 - `.github/workflows/` — reusable CI/CD orchestration
 
 ---
+
+## Artifact packaging
+
+The default `zipGlobs` (files to package) and `excludeGlobs` (files to leave out)
+have moved to [`cloudopsworks/blueprints/artifacts/config/xcode.yaml`](https://github.com/cloudopsworks/blueprints/blob/v5.10/artifacts/config/xcode.yaml).
+Remove both keys from `.cloudopsworks/cloudopsworks-ci.yaml`. To add project-specific
+patterns, set either key as a top-level list in `.cloudopsworks/vars/inputs-global.yaml`.
+Each list is merged with its blueprint defaults; omit both to use the defaults unchanged.
 
 ## Recommended bootstrap flow
 
@@ -226,7 +234,7 @@ these commands — never fetch or apply template changes manually.
 4. Commit the result with: `chore: upgrade from <template-name> <old-version> → <new-version> +semver: patch`
 5. Use `/cw-release` to create and merge the hotfix PR (see [Release Workflow — use `cw-release`](#release-workflow--use-cw-release)).
 
-> **Note:** `Makefile`, `.github/`, `.cloudopsworks/labeler.yml`, `.cloudopsworks/Makefile`,
+> **Note:** `Makefile`, `.github/`, `.cloudopsworks/labeler.yml`,
 > and `.cloudopsworks/LICENSE` are owned by the template and will be overwritten on every upgrade.
 > Do not edit these files manually in derived repositories.
 
@@ -388,4 +396,4 @@ In Claude Code (CLI, IDE extension, or web):
 3. Drives the shared `tronador` CLI / `gh` release path end-to-end.
 4. Creates the correct branch, PR, tag, and GitHub Release in the right sequence.
 
-> **Do not** run `git tag`, `gh release create`, or the legacy Make release target directly. Always let `cw-release` orchestrate these steps to keep version history and CI consistent.
+> **Do not** run `git tag`, `gh release create`, or `tronador versions tag --publish` directly. Always let `cw-release` orchestrate these steps to keep version history and CI consistent.
