@@ -78,6 +78,12 @@ xcode:
 #  gcp:
 #    project_id: PREVIEW_PROJECT_ID
 #
+# Optional additions to the blueprint artifact packaging defaults.
+#zipGlobs:
+#  - "assets/**"
+#excludeGlobs:
+#  - "assets/test-fixtures/**"
+#
 ## CD pipeline configuration uncomment and configure accordingly to enable
 # Target Cloud
 cloud: aws | azure | gcp
