@@ -21,7 +21,7 @@ config:
   # Configure the repository to enforce custom commits messages pattern
   enforceCustomCommitsPattern: ${try(enforce.customCommitsPatternEnabled, false)}
   #enforceCustomCommitsPatternRegex: "PROJECT-[0-9]+" #sample regex to enforce commit messages to have a JIRA ticket number in the format PROJECT-1234
-  enforceCustomCommitsPatternRegex: "${enforce.customCommitsPatternRegex}"
+  enforceCustomCommitsPatternRegex: ${jsonencode(try(enforce.customCommitsPatternRegex, enforce.customCommitsPattern, "PROJECT-[0-9]+"))}
   # Configure the repository to use Git Flow and or support Branches enablement
   gitFlow:
     enabled: ${try(gitflow.enabled, true)}
